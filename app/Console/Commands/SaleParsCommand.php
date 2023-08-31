@@ -49,7 +49,6 @@ class SaleParsCommand extends Command
             'limit' => 500,
         ]);
 
-
         while ($service->currentPage <= $service->lastPage) {
             $response = $service->get($url, $query);
             if ($response->status() !== 200) break;
@@ -57,16 +56,16 @@ class SaleParsCommand extends Command
             $data = $service->getData($response);
             $response->close();
 
-            foreach ($data->lazy()->chunk(100) as $chunk) {
-                DB::transaction(function () use($chunk) {
-                    DB::table('sales')->insert($chunk->toArray());
+            DB::transaction(function () use ($data) {
+                $data->each(function ($income) {
+                    Sale::create($income);
                 });
-            }
+            });
 
             unset($data, $response, $chunk);
             $memoryUsage = memory_get_usage();
             $memoryUsageInMB = round($memoryUsage / 1024 / 1024, 2);
-            dump("parsing CURRENT:  $service->currentPage LAST $service->lastPage", 'memory: ' . $memoryUsageInMB);
+            dump("CURRENT:  $service->currentPage LAST: $service->lastPage", 'memory: ' . $memoryUsageInMB);
             $service->currentPage++;
         }
     }

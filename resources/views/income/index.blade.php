@@ -23,7 +23,7 @@
         @foreach($incomes as $income)
             <tr>
                 <td>
-                    <a href="{{route('income.show', ['income' => $sale->id, 'page' => $sales->withQueryString()->currentPage()])}}">{{$income->id}}</a>
+                    <a href="{{route('income.show', ['income' => $income->id, 'page' => $incomes->withQueryString()->currentPage()])}}">{{$income->id}}</a>
                 </td>
                 <td>{{ \Illuminate\Support\Str::limit($income->income_id, 5) }}</td>
                 <td>{{ \Illuminate\Support\Str::limit($income->number, 5) }}</td>

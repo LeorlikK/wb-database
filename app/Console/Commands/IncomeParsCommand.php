@@ -53,15 +53,18 @@ class IncomeParsCommand extends Command
             if ($response->status() !== 200) break;
 
             $data = $service->getData($response);
-            $data->chunk(500)->each(function ($chunk){
-                DB::transaction(function () use($chunk) {
-                    $chunk->each(function ($income){
-                        Income::create($income);
-                    });
+            $response->close();
+
+            DB::transaction(function () use ($data) {
+                $data->each(function ($income) {
+                    Income::create($income);
                 });
             });
 
-            dump('parsing page: ' . $service->currentPage);
+            unset($data, $response, $chunk);
+            $memoryUsage = memory_get_usage();
+            $memoryUsageInMB = round($memoryUsage / 1024 / 1024, 2);
+            dump("CURRENT:  $service->currentPage LAST: $service->lastPage", 'memory: ' . $memoryUsageInMB);
             $service->currentPage++;
         }
     }

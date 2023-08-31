@@ -2,12 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Income;
 use App\Models\Stock;
 use App\Services\ParsingService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\LazyCollection;
 
 class StockParsCommand extends Command
 {
@@ -41,31 +39,30 @@ class StockParsCommand extends Command
      */
     public function handle(ParsingService $service)
     {
-        $url = "$this->host:$this->port/api/sales?";
+        $url = "$this->host:$this->port/api/stocks?";
         $query = http_build_query([
             'key' => $this->key,
-            'dateFrom' => now()->format('Y:m:d'),
-            'limit' => 250,
+            'dateFrom' => now()->subHours(12)->format('Y-m-d'),
+            'limit' => 500,
         ]);
 
         while ($service->currentPage <= $service->lastPage){
             $response = $service->get($url, $query);
-//            $response->close();
             if ($response->status() !== 200) break;
 
             $data = $service->getData($response);
             $response->close();
 
-            $data->lazy()->each(function ($stock){
-                DB::transaction(function () use($stock) {
-                    Stock::create($stock);
+            DB::transaction(function () use ($data) {
+                $data->each(function ($income) {
+                    Stock::create($income);
                 });
             });
 
             unset($data, $response, $chunk);
             $memoryUsage = memory_get_usage();
             $memoryUsageInMB = round($memoryUsage / 1024 / 1024, 2);
-            dump('parsing page: ' . $service->currentPage, 'memory: ' . $memoryUsageInMB);
+            dump("CURRENT:  $service->currentPage LAST: $service->lastPage", 'memory: ' . $memoryUsageInMB);
             $service->currentPage++;
         }
     }

@@ -74,5 +74,5 @@
             <p class="value">{{$order->cancel_dt}}</p>
         </div><hr>
     </div>
-    <a class="btn back" href="{{ route('$order.index', ['page' => $page]) }}">Back</a>
+    <a class="btn back" href="{{ route('order.index', ['page' => $page]) }}">Back</a>
 @endsection

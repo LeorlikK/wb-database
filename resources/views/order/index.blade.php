@@ -28,7 +28,7 @@
         @foreach($orders as $order)
             <tr>
                 <td>
-                    <a href="{{route('order.show', ['sale' => $order->id, 'page' => $orders->withQueryString()->currentPage()])}}">{{$order->id}}</a>
+                    <a href="{{route('order.show', ['order' => $order->id, 'page' => $orders->withQueryString()->currentPage()])}}">{{$order->id}}</a>
                 </td>
                 <td>{{ \Illuminate\Support\Str::limit($order->g_number, 5) }}</td>
                 <td>{{ \Illuminate\Support\Str::limit($order->date, 5) }}</td>

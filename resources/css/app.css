@@ -74,6 +74,9 @@ p.name {
 p.value {
     font-size: 14px;
 }
+p.main {
+    font-weight: bold;
+}
 hr {
     margin: 2px 0;
 }
