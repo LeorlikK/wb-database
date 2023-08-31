@@ -1,0 +1,93 @@
+body {
+    background-color: #d1cece;
+}
+.navbar {
+    background-color: #374050;
+    font-family: "Roboto", sans-serif;
+    position: fixed;
+    top: 0;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 1%;
+}
+.menu-ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+.menu-li {
+    margin: 0 10px;
+}
+.menu-li a {
+    text-decoration: none;
+    color: #FFFFFF;
+    font-size: 18px;
+}
+.menu-li a:hover {
+    color: #FF0000;
+}
+nav ul li a {
+    color: whitesmoke;
+}
+.table {
+    margin-top: 3%;
+    margin-left: 1%;
+    width: 50%;
+    margin-bottom: 100px;
+}
+.paginator-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    padding: 10px;
+    z-index: 1000;
+}
+.content {
+    background-color: #374050;
+    margin: 1%
+}
+.show {
+    margin-top: 3%;
+    background-color: #D1CECEFF;;
+    align-items: center;
+}
+.box-show {
+    display: grid;
+    grid-template-columns: 10% 10%;
+}
+.box-show p {
+    text-align: center; /* Центрируем текст по горизонтали внутри ячейки */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+p.name {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    justify-content: left;
+}
+p.value {
+    font-size: 14px;
+}
+hr {
+    margin: 2px 0;
+}
+.btn {
+    display: block;
+    width: 100px;
+    font: 16px/16px Arial;
+    color: whitesmoke;
+    background: deepskyblue;
+    text-align: center;
+    padding: 10px 0;
+    text-decoration: none;
+    border-radius: 5px;
+}
+.back{
+    margin: 20px 20px;
+}
