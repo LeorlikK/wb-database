@@ -1,5 +1,18 @@
 # wp-database
+## База данных:
+- DB_CONNECTION=mysql
+- DB_HOST=141.8.192.46
+- DB_PORT=3306
+- DB_DATABASE=a0858077_wb_api_database
+- DB_USERNAME=a0858077_wb_api_database
+- DB_PASSWORD=pqtd1awm25
 
+## Таблицы:
+- incomes
+- orders
+- sales
+- stocks
+  
 ## Команды запуска парсинга:
 - **command**: php artisan pars:incomes
 - **command**: php artisan pars:orders
