@@ -14,10 +14,8 @@ class ParsingService
     public function get(string $url, string $query): Response
     {
         $query .= "&page=$this->currentPage";
-        $response = Http::get($url . $query);
-//        $response->close();
-        return $response;
-//        return Http::get($url . $query)->close();
+
+        return Http::get($url . $query);
     }
 
     public function getData(Response $response):Collection
