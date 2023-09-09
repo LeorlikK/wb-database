@@ -48,13 +48,15 @@ class IncomeParsCommand extends Command
             'limit' => 500,
         ]);
 
-        while ($service->currentPage <= $service->lastPage){
+        while ($service->currentPage <= $service->lastPage) {
             $response = $service->get($url, $query);
             if ($response->status() !== 200) break;
 
             $data = $service->getData($response);
-            $response->close();
 
+            DB::transaction(function () use ($data) {
+                Income::insert($data->toArray());
+            });
             DB::transaction(function () use ($data) {
                 $data->each(function ($income) {
                     Income::create($income);

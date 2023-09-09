@@ -54,8 +54,10 @@ class SaleParsCommand extends Command
             if ($response->status() !== 200) break;
 
             $data = $service->getData($response);
-            $response->close();
 
+//            DB::transaction(function () use ($data) {
+//                Sale::insert($data->toArray());
+//            });
             DB::transaction(function () use ($data) {
                 $data->each(function ($income) {
                     Sale::create($income);

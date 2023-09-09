@@ -51,8 +51,10 @@ class StockParsCommand extends Command
             if ($response->status() !== 200) break;
 
             $data = $service->getData($response);
-            $response->close();
 
+//            DB::transaction(function () use ($data) {
+//                Stock::insert($data->toArray());
+//            });
             DB::transaction(function () use ($data) {
                 $data->each(function ($income) {
                     Stock::create($income);
