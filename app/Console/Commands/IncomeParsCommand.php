@@ -54,9 +54,9 @@ class IncomeParsCommand extends Command
 
             $data = $service->getData($response);
 
-            DB::transaction(function () use ($data) {
-                Income::insert($data->toArray());
-            });
+//            DB::transaction(function () use ($data) {
+//                Income::insert($data->toArray());
+//            });
             DB::transaction(function () use ($data) {
                 $data->each(function ($income) {
                     Income::create($income);
