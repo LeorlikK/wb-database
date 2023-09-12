@@ -47,9 +47,18 @@ class OrderParsCommand extends Command
             'limit' => 500,
         ]);
 
+        $start = now();
+        $memoryUsageInMB = 0;
         while ($service->currentPage <= $service->lastPage){
             $response = $service->get($url, $query);
-            if ($response->status() !== 200) break;
+            if ($response->status() !== 200) {
+                if ($response->status() === 429) {
+                    $this->error(now() . " ORDERS: response 'Too many requests'");
+                    $service->sleepIfTooManyRequests(300, 'orders');
+                } else {
+                    break;
+                }
+            }
 
             $data = $service->getData($response);
 
@@ -65,8 +74,9 @@ class OrderParsCommand extends Command
             unset($data, $response, $chunk);
             $memoryUsage = memory_get_usage();
             $memoryUsageInMB = round($memoryUsage / 1024 / 1024, 2);
-            dump("CURRENT:  $service->currentPage LAST: $service->lastPage", 'memory: ' . $memoryUsageInMB);
             $service->currentPage++;
         }
+
+        $this->info($service->printInfo($start, $memoryUsageInMB, 'ORDERS'));
     }
 }
