@@ -17,10 +17,20 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        /**
+         * Сохранение всех оповещений и ошибок в command log.
+         */
         $outputFilePath = storage_path('logs/command.log');
-         $schedule->command(RunAllCommands::class)
+
+        /**
+         * Первый вариант запуска через одну общую команду
+         */
+        $schedule->command(RunAllCommands::class)
             ->cron('0 */12 * * *')->withoutOverlapping()->appendOutputTo($outputFilePath);
 
+        /**
+         * Второй вариант запуска каждой команды в отдельности.
+         */
 //        $outputFilePath = storage_path('logs/command.log');
 //        $schedule->command(IncomeParsCommand::class)
 //            ->cron('0 */12 * * *')->withoutOverlapping()->appendOutputTo($outputFilePath);
@@ -30,8 +40,6 @@ class Kernel extends ConsoleKernel
 //            ->cron('0 */12 * * *')->withoutOverlapping()->appendOutputTo($outputFilePath);
 //        $schedule->command(StockParsCommand::class)
 //            ->cron('0 */12 * * *')->withoutOverlapping()->appendOutputTo($outputFilePath);
-
-//             })->cron('*/1 * * * *')->withoutOverlapping();
     }
 
     /**
@@ -39,7 +47,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

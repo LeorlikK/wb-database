@@ -2,13 +2,15 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Income;
-use App\Services\ParsingService;
+use App\Services\Api\ApiTrait;
+use App\Services\Api\ParsingServiceAbstract;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class IncomeParsCommand extends Command
 {
+    use ApiTrait;
+
+    private string $table = 'incomes';
     private string $host;
     private string $port;
     private string $key;
@@ -16,9 +18,9 @@ class IncomeParsCommand extends Command
     public function __construct()
     {
         @parent::__construct();
-        $this->host = env('WP_HOST', 'not_found_host');
-        $this->port = env('WP_PORT', 'not_found_port');
-        $this->key = env('WP_KEY', 'not_found_key');
+        $this->host = config('parsing.host');
+        $this->port = config('parsing.port');
+        $this->key = config('parsing.key');
     }
 
     /**
@@ -38,7 +40,7 @@ class IncomeParsCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(ParsingService $service)
+    public function handle(ParsingServiceAbstract $service)
     {
         $url = "$this->host:$this->port/api/incomes?";
         $query = http_build_query([
@@ -48,36 +50,6 @@ class IncomeParsCommand extends Command
             'limit' => 500,
         ]);
 
-        $start = now();
-        $memoryUsageInMB = 0;
-        while ($service->currentPage <= $service->lastPage) {
-            $response = $service->get($url, $query);
-            if ($response->status() !== 200) {
-                if ($response->status() === 429) {
-                    $this->error(now() . " INCOMES: response 'Too many requests'");
-                    $service->sleepIfTooManyRequests(300, 'incomes');
-                } else {
-                    break;
-                }
-            }
-
-            $data = $service->getData($response);
-
-//            DB::transaction(function () use ($data) {
-//                Income::insert($data->toArray());
-//            });
-            DB::transaction(function () use ($data) {
-                $data->each(function ($income) {
-                    Income::create($income);
-                });
-            });
-
-            unset($data, $response, $chunk);
-            $memoryUsage = memory_get_usage();
-            $memoryUsageInMB = round($memoryUsage / 1024 / 1024, 2);
-            $service->currentPage++;
-        }
-
-        $this->info($service->printInfo($start, $memoryUsageInMB, 'INCOMES'));
+        $this->parsingWhileCircle($service, $url, $query);
     }
 }

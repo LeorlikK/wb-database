@@ -1,18 +1,6 @@
 version: '3'
 services:
 
-    #Nginx Service
-    nginx:
-        image: nginx:latest
-        volumes:
-            - ./:/var/www/
-            - ./_docker/nginx/conf.d/:/etc/nginx/conf.d/
-        ports:
-            - "8077:80"
-        container_name: wb_nginx
-        depends_on:
-            - app
-
     #PHP Service
     app:
         build:
@@ -35,5 +23,5 @@ services:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: wbapidatabase
         ports:
-            - "8110:3306"
+            - "8111:8111"
         command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci

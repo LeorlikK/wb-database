@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\ApiService;
+use App\Services\Api\ParsingServiceAbstract;
+use App\Services\Api\ParsingServiceFirst;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 
@@ -12,7 +15,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        app()->bind(ParsingServiceAbstract::class, function () {
+            $apiService = ApiService::where('name', 'ApiServiceOne')->first();
+            return new ParsingServiceFirst($apiService);
+        });
     }
 
     /**
