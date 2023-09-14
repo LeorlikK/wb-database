@@ -15,6 +15,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        /**
+         * Плохая практика! Подумать о привязке внутри самой команды
+         * app()->makeWith(ParsingServiceFirst::class, ['apiService' => $apiService]);
+         */
         app()->bind(ParsingServiceAbstract::class, function () {
             $apiService = ApiService::where('name', 'ApiServiceOne')->first();
             return new ParsingServiceFirst($apiService);

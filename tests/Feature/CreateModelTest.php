@@ -6,13 +6,11 @@ namespace Tests\Feature;
 use App\Models\Account;
 use App\Models\ApiService;
 use App\Models\Company;
-use App\Models\Income;
 use App\Models\Office;
 use App\Models\Token;
 use App\Models\TokenType;
 use Database\Seeders\TestSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class CreateModelTest extends TestCase
@@ -65,11 +63,5 @@ class CreateModelTest extends TestCase
         $this->assertInstanceOf(Account::class, $token->account);
         $this->assertInstanceOf(TokenType::class, $token->type);
         $this->assertInstanceOf(ApiService::class, $token->apiService);
-    }
-
-    public function test_test()
-    {
-        $name = 'lalal';
-        DB::table($name)->insert($data);
     }
 }
