@@ -28,22 +28,30 @@ class TestSeeder extends Seeder
 
         $tokenType = TokenType::factory(3)->create();
 
-        $apiServiceFirst = ApiService::factory(1)->create(['name' => 'ApiServiceOne'])->first();
-        $apiServiceSecond = ApiService::factory(1)->create(['name' => 'ApiServiceTwo'])->first();
+        ApiService::factory(1)->create(
+            [
+                'name' => 'ApiServiceOne',
+                'token_types_id' => $tokenType->first()->id
+            ]
+        )->first();
+        ApiService::factory(1)->create(
+            [
+                'name' => 'ApiServiceTwo',
+                'token_types_id' => $tokenType->first()->id
+            ]
+        )->first();
 
-        $tokenType->each(function ($type) use($accountOne, $apiServiceFirst) {
+        $tokenType->each(function ($type) use ($accountOne) {
             Token::factory(1)->create([
                 'account_id' => $accountOne->id,
                 'token_type_id' => $type->id,
-                'api_service_id' => $apiServiceFirst->id,
             ]);
         });
 
-        $tokenType->each(function ($type) use($accountOne, $apiServiceSecond) {
+        $tokenType->each(function ($type) use ($accountTwo) {
             Token::factory(1)->create([
-                'account_id' => $accountOne->id,
+                'account_id' => $accountTwo->id,
                 'token_type_id' => $type->id,
-                'api_service_id' => $apiServiceSecond->id,
             ]);
         });
     }

@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 // use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\ApiService;
-use App\Services\Api\ParsingServiceFirst;
+use App\Services\Api\ParsingServiceCircle;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase

@@ -22,8 +22,7 @@ class TokenFactory extends Factory
         return [
             'account_id' => fake(),
             'token_type_id' => fake(),
-            'api_service_id' => fake(),
-            'token' => fake()->unique()->uuid
+            'token' => config('parsing.key') // fake()->unique()->uuid
         ];
     }
 }

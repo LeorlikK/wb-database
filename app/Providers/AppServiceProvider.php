@@ -2,9 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\ApiService;
 use App\Services\Api\ParsingServiceAbstract;
-use App\Services\Api\ParsingServiceFirst;
+use App\Services\Api\ParsingServiceCircle;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 
@@ -15,14 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        /**
-         * Плохая практика! Подумать о привязке внутри самой команды
-         * app()->makeWith(ParsingServiceFirst::class, ['apiService' => $apiService]);
-         */
-        app()->bind(ParsingServiceAbstract::class, function () {
-            $apiService = ApiService::where('name', 'ApiServiceOne')->first();
-            return new ParsingServiceFirst($apiService);
-        });
+        app()->bind(ParsingServiceAbstract::class, ParsingServiceCircle::class);
     }
 
     /**

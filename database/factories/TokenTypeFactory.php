@@ -14,8 +14,8 @@ class TokenTypeFactory extends Factory
 
     private static int $countId = 0;
     private static array $name = [
+        'key',
         'bearer',
-        'api-key',
         'login and password',
     ];
 

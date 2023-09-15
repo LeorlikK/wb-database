@@ -20,6 +20,7 @@ class ApiServiceFactory extends Factory
     public function definition(): array
     {
         return [
+            'token_types_id' => fake(),
             'name' => fake()
         ];
     }

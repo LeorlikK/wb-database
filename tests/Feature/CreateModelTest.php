@@ -41,7 +41,7 @@ class CreateModelTest extends TestCase
 
         $account = Account::first();
         $this->assertDatabaseCount('accounts', 2);
-        $this->assertCount(6, $account->tokens);
+        $this->assertCount(3, $account->tokens);
         $this->assertInstanceOf(Office::class, $account->office);
         $this->assertInstanceOf(Token::class, $account->tokens->first());
 
@@ -53,8 +53,7 @@ class CreateModelTest extends TestCase
 
 
         $apiService = ApiService::first();
-        $this->assertCount(3, $apiService->tokens);
-        $this->assertInstanceOf(Token::class, $apiService->tokens->first());
+        $this->assertInstanceOf(TokenType::class, $apiService->tokenType);
 
         $this->assertDatabaseCount('api_services', 2);
 
@@ -62,6 +61,5 @@ class CreateModelTest extends TestCase
         $this->assertDatabaseCount('tokens', 6);
         $this->assertInstanceOf(Account::class, $token->account);
         $this->assertInstanceOf(TokenType::class, $token->type);
-        $this->assertInstanceOf(ApiService::class, $token->apiService);
     }
 }

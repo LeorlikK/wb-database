@@ -8,64 +8,71 @@ use App\Models\Token;
 use Carbon\Carbon;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
 
 abstract class ParsingServiceAbstract
 {
-    public int $currentPage = 1;
-    public int $lastPage = 10;
-    public ?Token $token = null;
-    public ?Account $currentAccount = null;
-    protected ApiService $apiService;
-
-    public function __construct(ApiService $apiService)
-    {
-        $this->apiService = $apiService;
-    }
-
-    abstract public function get(string $url, string $query);
-
-    abstract public function getData(Response $response);
-
-    protected function getTokenThisAccountAndService(Collection $tokens, string $name): ?Token
-    {
-        return $tokens->filter(function ($token) use ($name) {
-            return $token->type->name === $name;
-        })->first();
-    }
-
     /**
-     * Находит токены данного apiService с опредленным type.
-     * Если id отсутствует в аргументах, то установит первый подходящий, если id передан,
-     * то установит токен, идущий следом за текущим bи вернет true.
-     * Если токен не обнаружен, то вновь установит первый и вернет false.
+     * Токен для get запроса.
      */
-    public function choiceOrChangeTokenAndAccount(int $tokenId = null): bool
-    {
-        $tokenCollection = $this->apiService->tokens()->moreThanCurrentId($tokenId)->get();
-        $this->token = $this->getTokenThisAccountAndService($tokenCollection, $this->tokenType);
-        $this->currentAccount = $this->token?->account;
-        if (!$this->token) {
-            $this->token = $this->getTokenThisAccountAndService($this->apiService->tokens, $this->tokenType);
-            $this->currentAccount = $this->token?->account;
-            return false;
-        }
+    public ?string $token = null;
+    public ?string $tokenTypeApiService = null;
 
-        return true;
+    public function __construct(public ApiService $apiService, public Account $account)
+    {
+        $this->tokenTypeApiService = $apiService->tokenType?->name;
+        $this->token = Token::query()
+            ->tokenForThisAccountApiService($apiService, $account)
+            ->first()
+            ?->token;
+    }
+
+    abstract public function parsing(string $url, string $query, string $tableName): void;
+
+    public function get(string $url, string $query, ?string $page=null): Response
+    {
+        $page = $page ?? 1;
+        $query .= "&page=$page";
+
+        switch ($this->tokenTypeApiService) {
+            case 'bearer':
+                return Http::withHeaders(['Authorization' => 'Bearer ' . $this->token])->get($url . $query);
+            case 'key':
+                $query .= "&key=$this->token";
+                return Http::get($url . $query);
+            default:
+                return Http::get($url . $query);
+        }
+    }
+
+    public function getData(Response $response): Collection
+    {
+        return $response->collect('data')->map(function ($item) {
+            $item['account_id'] = $this->account->id;
+            return $item;
+        });
+    }
+
+    public function getLastPage(Response $response): int
+    {
+        return $response->collect('meta')['last_page'];
     }
 
     public function sleepIfTooManyRequests(int $timeSleep, string $commandName): void
     {
+        dump(now() . " {$commandName}: go to sleep => $timeSleep seconds");
         for ($i = $timeSleep; $i > 0; $i--) {
             sleep(1);
         }
+        dump(now() . " {$commandName}: exit from sleep");
     }
 
-    public function printInfo(Carbon $start, string $memory, string $name): string
+    public function printInfo(Carbon $start, string $memory, string $name, string $lastPage): string
     {
         $finish = now();
         $diff = $finish->diff($start);
         $formatDiff = sprintf('%02d:%02d:%02d', $diff->h, $diff->i, $diff->s);
 
-        return now() . " $name => page: $this->lastPage; time: $formatDiff; memory: $memory";
+        return now() . " $name => page: $lastPage; time: $formatDiff; memory: $memory";
     }
 }

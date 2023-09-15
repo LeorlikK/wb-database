@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\ApiService;
+use App\Models\TokenType;
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
 
@@ -27,11 +28,15 @@ class CreateApiServiceCommand extends Command
      */
     public function handle()
     {
+        $tokenTypeArray = TokenType::all()->pluck('name', 'id')->toArray();
+
+        $tokenTypeName = $this->choice('Choice token type', $tokenTypeArray);
         $name = $this->ask('Input api service name');
 
         try {
             ApiService::create([
-                'name' => $name
+                'name' => $name,
+                'token_types_id' => array_search($tokenTypeName, $tokenTypeArray)
             ]);
             $this->info("Api service created: $name ");
         } catch (QueryException $e) {

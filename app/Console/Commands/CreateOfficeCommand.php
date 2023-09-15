@@ -30,7 +30,7 @@ class CreateOfficeCommand extends Command
     {
         $companyArray = Company::all()->pluck('name', 'id')->toArray();
 
-        $companyName = $this->choice('Input company_id', $companyArray);
+        $companyName = $this->choice('Choice company_id', $companyArray);
         $officeName = $this->ask('Input office name');
 
         try {

@@ -32,18 +32,15 @@ class CreateTokenCommand extends Command
     {
         $accountsArray = Account::all()->pluck('login', 'id')->toArray();
         $tokenTypesArray = TokenType::all()->pluck('name', 'id')->toArray();
-        $apiServicesArray = ApiService::all()->pluck('name', 'id')->toArray();
 
-        $accountLogin = $this->choice('Input account_id', $accountsArray);
-        $tokenTypeName = $this->choice('Input token_type_id', $tokenTypesArray);
-        $apiServiceName = $this->choice('Input api_service_id', $apiServicesArray);
+        $accountLogin = $this->choice('Choice account_id', $accountsArray);
+        $tokenTypeName = $this->choice('Choice token_type_id', $tokenTypesArray);
         $token = $this->ask('Input token');
 
         try {
             Token::create([
                 'account_id' => array_search($accountLogin, $accountsArray),
                 'token_type_id' => array_search($tokenTypeName, $tokenTypesArray),
-                'api_service_id' => array_search($apiServiceName, $apiServicesArray),
                 'token' => $token
             ]);
             $this->info("Token created");

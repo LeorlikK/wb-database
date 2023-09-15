@@ -7,7 +7,7 @@ use App\Models\Account;
 use App\Models\ApiService;
 use App\Models\Token;
 use App\Services\Api\ParsingServiceAbstract;
-use App\Services\Api\ParsingServiceFirst;
+use App\Services\Api\ParsingServiceCircle;
 use Database\Seeders\TestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -29,7 +29,6 @@ class ApiServiceTest extends TestCase
     {
         $apiServices = ApiService::all();
         $accounts = Account::all();
-        $tokens = Token::all();
 
         $host = env('WP_HOST', 'not_found_host');
         $port = env('WP_PORT', 'not_found_port');
@@ -42,36 +41,18 @@ class ApiServiceTest extends TestCase
             'limit' => 500,
         ]);
 
-        $apiParsingService = app()->make(ParsingServiceAbstract::class);
-        $this->assertInstanceOf(ParsingServiceFirst::class, $apiParsingService);
-        $this->assertObjectHasProperty('apiService', $apiParsingService);
-        $response = $apiParsingService->get($accounts->first(), $url, $query);
-        $this->assertEquals(200, $response->status());
-        $data = $apiParsingService->getData($accounts->first(), $response);
-        $this->assertCount(500, $data);
-    }
-
-    public function test_change_token_and_account()
-    {
-        $apiService = ApiService::first();
-        $service = app()->makeWith(ParsingServiceFirst::class, ['apiService' => $apiService]);
+        $service = app()->makeWith(ParsingServiceAbstract::class,
+            [
+                'apiService' => $apiServices->first(),
+                'account' => $accounts->first()
+            ]
+        );
+        $this->assertInstanceOf(ParsingServiceCircle::class, $service);
         $this->assertObjectHasProperty('apiService', $service);
-        $this->assertObjectHasProperty('currentAccount', $service);
-        $this->assertObjectHasProperty('token', $service);
-
-        $hasNewToken = $service->choiceOrChangeTokenAndAccount();
-        $this->assertEquals(1, $service->token->id);
-        $this->assertEquals(1, $service->currentAccount->id);
-        $this->assertTrue($hasNewToken);
-
-        $hasNewToken = $service->choiceOrChangeTokenAndAccount($service->token->id);
-        $this->assertEquals(1, $service->token->id);
-        $this->assertEquals(1, $service->currentAccount->id);
-        $this->assertFalse($hasNewToken);
-
-        $hasNewToken = $service->choiceOrChangeTokenAndAccount($service->token->id);
-        $this->assertEquals(1, $service->token->id);
-        $this->assertEquals(1, $service->currentAccount->id);
-        $this->assertFalse($hasNewToken);
+        $this->assertObjectHasProperty('account', $service);
+        $response = $service->get($url, $query, 'incomes');
+        $this->assertEquals(200, $response->status());
+        $data = $service->getData($response);
+        $this->assertCount(500, $data);
     }
 }

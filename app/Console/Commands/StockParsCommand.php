@@ -2,25 +2,22 @@
 
 namespace App\Console\Commands;
 
-use App\Services\Api\ApiTrait;
+use App\Models\Account;
+use App\Models\ApiService;
 use App\Services\Api\ParsingServiceAbstract;
 use Illuminate\Console\Command;
 
 class StockParsCommand extends Command
 {
-    use ApiTrait;
-
-    private string $table = 'stocks';
+    private string $tableName = 'stocks';
     private string $host;
     private string $port;
-    private string $key;
 
     public function __construct()
     {
         @parent::__construct();
         $this->host = config('parsing.host');
         $this->port = config('parsing.port');
-        $this->key = config('parsing.key');
     }
 
     /**
@@ -40,15 +37,27 @@ class StockParsCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(ParsingServiceAbstract $service)
+    public function handle()
     {
+        $account = Account::first();
+        $apiService = ApiService::first();
+        $service = app()->makeWith(ParsingServiceAbstract::class,
+            [
+                'apiService' => $apiService,
+                'account' => $account
+            ]
+        );
+
         $url = "$this->host:$this->port/api/stocks?";
         $query = http_build_query([
-            'key' => $this->key,
             'dateFrom' => now()->subHours(12)->format('Y-m-d'),
             'limit' => 500,
         ]);
 
-        $this->parsingWhileCircle($service, $url, $query);
+        if ($service->token) {
+            $service->parsing($url, $query, $this->tableName);
+        } else {
+            $this->error(now() . " Account $account->login don't have token for ApiService $apiService->name");
+        }
     }
 }

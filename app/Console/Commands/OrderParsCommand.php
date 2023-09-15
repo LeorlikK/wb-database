@@ -2,27 +2,22 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Order;
-use App\Services\Api\ApiTrait;
+use App\Models\Account;
+use App\Models\ApiService;
 use App\Services\Api\ParsingServiceAbstract;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class OrderParsCommand extends Command
 {
-    use ApiTrait;
-
-    private string $table = 'orders';
+    private string $tableName = 'orders';
     private string $host;
     private string $port;
-    private string $key;
 
     public function __construct()
     {
         @parent::__construct();
         $this->host = config('parsing.host');
         $this->port = config('parsing.port');
-        $this->key = config('parsing.key');
     }
 
     /**
@@ -42,16 +37,28 @@ class OrderParsCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(ParsingServiceAbstract $service)
+    public function handle()
     {
+        $account = Account::first();
+        $apiService = ApiService::first();
+        $service = app()->makeWith(ParsingServiceAbstract::class,
+            [
+                'apiService' => $apiService,
+                'account' => $account
+            ]
+        );
+
         $url = "$this->host:$this->port/api/orders?";
         $query = http_build_query([
-            'key' => $this->key,
             'dateFrom' => '2000-01-01',
             'dateTo' => '2030-01-01',
             'limit' => 500,
         ]);
 
-        $this->parsingWhileCircle($service, $url, $query);
+        if ($service->token) {
+            $service->parsing($url, $query, $this->tableName);
+        } else {
+            $this->error(now() . " Account $account->login don't have token for ApiService $apiService->name");
+        }
     }
 }

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('api_services', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('token_types_id')->constrained('token_types', 'id');
             $table->string('name');
             $table->timestamps();
         });

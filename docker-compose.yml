@@ -10,10 +10,10 @@ services:
             - ./:/var/www
         container_name: wb_app
         depends_on:
-            - db
+            - mysql
 
     #MySQL Service
-    db:
+    mysql:
         image: mysql:8.0
         container_name: wb_db
         restart: always
@@ -21,7 +21,8 @@ services:
             - ./tmp/db/mysql:/var/lib/mysql
         environment:
             MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: wbapidatabase
+            MYSQL_ROOT_HOST: "%"
+            MYSQL_DATABASE: wb_api_database
         ports:
             - "8111:8111"
-        command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+        command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --port=8111
