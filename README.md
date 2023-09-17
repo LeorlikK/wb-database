@@ -43,14 +43,12 @@ stock:
 
 # 2 Этап
 ## Schema
-<img src="./resources/preview/db.png" alt="1" width="400"/>
+<img src="./resources/preview/db_2.png" alt="1" width="400"/>
 
 ## Обновления:
-- добавление docker-compose и Dockerfile
-- модели, миграции, связи: Company, Office, Account, Token, TokenType, ApiService
-- cron задача с частотой 12 часов
-- тесты ApiServiceTest, CreateModelTest
-- добавление основного функционала сервиса для парсинга в абстрактный класс(ParsingServiceAbstract). Реализация через DI через ParsingServiceFirst. Основная логина команд парсинга вынесена в trait ApiTrait
-
-## P.S
-Я понял так, что при получении ответа со статусом 429, нужно менять токен/аккаунт и продолжать запросы. В случае, если токенов не осталось, то уходить в сон на 5 минут.
+- добавление docker-compose и Dockerfile.
+- модели, миграции, связи: Company, Office, Account, Token, TokenType, ApiService.
+- cron задача с частотой 12 часов.
+- тесты ApiServiceTest, CreateModelTest.
+- ParsingServiceAbstract: ParsingServiceCircle - запуск в цикле, ParsingServiceQueues - запуск через очереди.
+- команды для создания: Company, ApiService, Office, TokenType, Token.
