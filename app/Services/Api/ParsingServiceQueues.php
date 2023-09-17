@@ -3,6 +3,7 @@
 namespace App\Services\Api;
 
 use App\Jobs\ParsingJob;
+use App\Models\Cron;
 
 class ParsingServiceQueues extends ParsingServiceAbstract
 {
@@ -18,5 +19,9 @@ class ParsingServiceQueues extends ParsingServiceAbstract
         for ($page = 1; $page <= $lastPage; $page++) {
             ParsingJob::dispatch($this, $url, $query, $tableName, $page)->onQueue('parsing');
         }
+        Cron::create([
+            'table_name' => $tableName,
+            'status' => true,
+        ]);
     }
 }

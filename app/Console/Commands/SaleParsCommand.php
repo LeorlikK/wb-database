@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Account;
 use App\Models\ApiService;
+use App\Models\Cron;
 use App\Services\Api\ParsingServiceAbstract;
 use Illuminate\Console\Command;
 
@@ -48,10 +49,12 @@ class SaleParsCommand extends Command
             ]
         );
 
+        $date = Cron::getFromAndToTime($this->tableName);
+
         $url = "$this->host:$this->port/api/sales?";
         $query = http_build_query([
-            'dateFrom' => '2000-01-01',
-            'dateTo' => '2030-01-01',
+            'dateFrom' => $date['yesterday'],
+            'dateTo' => $date['today'],
             'limit' => 500,
         ]);
 

@@ -50,7 +50,8 @@ class StockParsCommand extends Command
 
         $url = "$this->host:$this->port/api/stocks?";
         $query = http_build_query([
-            'dateFrom' => now()->subHours(12)->format('Y-m-d'),
+//            'dateFrom' => now()->subHours(12)->format('Y-m-d'),
+            'dateFrom' => now()->format('Y-m-d'),
             'limit' => 500,
         ]);
 

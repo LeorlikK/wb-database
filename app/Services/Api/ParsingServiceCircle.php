@@ -2,6 +2,7 @@
 
 namespace App\Services\Api;
 
+use App\Models\Cron;
 use Illuminate\Support\Facades\DB;
 
 class ParsingServiceCircle extends ParsingServiceAbstract
@@ -17,7 +18,8 @@ class ParsingServiceCircle extends ParsingServiceAbstract
         $upperTableName = strtoupper($tableName);
 
         $currentPage = 1;
-        $lastPage = 100;
+        $lastPage = 1000;
+        $status = true;
 
         while ($currentPage <= $lastPage) {
             $response = $this->get($url, $query, $currentPage);
@@ -28,6 +30,8 @@ class ParsingServiceCircle extends ParsingServiceAbstract
                     continue;
                 } else {
                     dump(now() . " {$upperTableName}: failed with status code {$response->status()}");
+                    $status = false;
+                    $lastPage = $lastPage === 1000 || $currentPage === 1 ? 0 : $lastPage;
                     break;
                 }
             }
@@ -51,5 +55,9 @@ class ParsingServiceCircle extends ParsingServiceAbstract
         }
 
         dump($this->printInfo($start, $memoryUsageInMB, $upperTableName, $lastPage));
+        Cron::create([
+            'table_name' => $tableName,
+            'status' => $status,
+        ]);
     }
 }
