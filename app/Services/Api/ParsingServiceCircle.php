@@ -39,19 +39,24 @@ class ParsingServiceCircle extends ParsingServiceAbstract
             $lastPage = $this->getLastPage($response);
             $data = $this->getData($response);
 
-//            DB::transaction(function () use ($data, $tableName) {
-//                DB::table($tableName)->insert($data->toArray());
-//            });
             DB::transaction(function () use ($data, $tableName) {
-                $data->each(function ($income) use ($tableName) {
-                    DB::table($tableName)->insert($income);
-                });
+                DB::table($tableName)->insert($data->toArray());
             });
+//            DB::transaction(function () use ($data, $tableName) {
+//                $data->each(function ($income) use ($tableName) {
+//                    DB::table($tableName)->insert($income);
+//                });
+//            });
 
-            unset($data, $response, $chunk);
+//            unset($data, $response, $chunk);
+            gc_collect_cycles();
             $memoryUsage = memory_get_usage();
             $memoryUsageInMB = round($memoryUsage / 1024 / 1024, 2);
             $currentPage++;
+            /**
+             * Быстрее ждать одну секунду, чем получать 429 и ждать 300 сек.
+             */
+            sleep(1);
         }
 
         dump($this->printInfo($start, $memoryUsageInMB, $upperTableName, $lastPage));

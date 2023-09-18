@@ -26,8 +26,7 @@ class Kernel extends ConsoleKernel
          * Первый вариант запуска через одну общую команду
          */
         $schedule->command(RunAllCommands::class)
-            ->dailyAt('03:00')->withoutOverlapping()->appendOutputTo($outputFilePath);
-
+            ->dailyAt('06:00')->withoutOverlapping()->appendOutputTo($outputFilePath);
         /**
          * Второй вариант запуска каждой команды в отдельности.
          */
