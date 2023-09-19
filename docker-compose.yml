@@ -20,7 +20,7 @@ services:
         volumes:
             - ./tmp/db/mysql:/var/lib/mysql
         environment:
-            MYSQL_ROOT_PASSWORD: root
+            MYSQL_ROOT_PASSWORD: passwordWbApi
             MYSQL_ROOT_HOST: "%"
             MYSQL_DATABASE: wb_api_database
         ports:
