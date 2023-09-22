@@ -4,12 +4,13 @@ namespace App\Console\Commands;
 
 use App\Models\Account;
 use App\Models\ApiService;
+use App\Services\Api\CommandAccountService;
 use App\Services\Api\ParsingServiceAbstract;
 use Illuminate\Console\Command;
 
 class StockParsCommand extends Command
 {
-    private string $tableName = 'stocks';
+    private string $tableName = 'stocks {--account}';
     private string $host;
     private string $port;
 
@@ -25,7 +26,7 @@ class StockParsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'pars:stocks';
+    protected $signature = 'pars:stocks {accountId?} {serviceId?} {--account}';
 
     /**
      * The console command description.
@@ -37,10 +38,10 @@ class StockParsCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(CommandAccountService $commandAccountService)
     {
-        $account = Account::first();
-        $apiService = ApiService::first();
+        [$account, $apiService] = $commandAccountService->choiceAccountAndService($this);
+
         $service = app()->makeWith(ParsingServiceAbstract::class,
             [
                 'apiService' => $apiService,
@@ -54,10 +55,14 @@ class StockParsCommand extends Command
             'limit' => 500,
         ]);
 
-        if ($service->token) {
-            $service->parsing($url, $query, $this->tableName);
+        if ($service->account && $service->apiService) {
+            if ($service->token) {
+                $service->parsing($url, $query, $this->tableName);
+            } else {
+                $this->error(now() . " Account $account->login don't have token for ApiService $apiService->name");
+            }
         } else {
-            $this->error(now() . " Account $account->login don't have token for ApiService $apiService->name");
+            $this->error(now() . " Could not find account or service");
         }
     }
 }

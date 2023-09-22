@@ -2,6 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Account;
+use App\Models\ApiService;
+use App\Services\Api\CommandAccountService;
+use App\Services\Api\ParsingServiceAbstract;
 use Illuminate\Console\Command;
 
 class RunAllCommands extends Command
@@ -11,7 +15,7 @@ class RunAllCommands extends Command
      *
      * @var string
      */
-    protected $signature = 'pars:all';
+    protected $signature = 'pars:all {accountId?} {serviceId?} {--account}';
 
     /**
      * The console command description.
@@ -23,13 +27,16 @@ class RunAllCommands extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(CommandAccountService $commandAccountService)
     {
+        [$account, $apiService] = $commandAccountService->choiceAccountAndService($this);
+        $data = ['accountId' => $account?->id, 'serviceId' => $apiService?->id];
+
         $this->info(now() . " Start parsing...");
-        $this->call(IncomeParsCommand::class);
-        $this->call(OrderParsCommand::class);
-        $this->call(SaleParsCommand::class);
-        $this->call(StockParsCommand::class);
+        $this->call(IncomeParsCommand::class, $data);
+        $this->call(OrderParsCommand::class, $data);
+        $this->call(SaleParsCommand::class, $data);
+        $this->call(StockParsCommand::class, $data);
         $this->info(now() . " Finished parsing");
     }
 }
